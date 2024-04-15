@@ -6,6 +6,9 @@ spring:
   config:
     activate:
       on-profile: local
+    import:
+      - classpath:secrets_be/aws-s3.yml
+      - classpath:secrets_be/open-ai.yml
   datasource: # DB 커넥션 설정
     url: jdbc:postgresql://localhost:5432/wordsketch?serverTimezone=UTC&characterEncoding=UTF-8
     username: pantsadmin
