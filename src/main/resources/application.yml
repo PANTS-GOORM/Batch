@@ -6,6 +6,9 @@ spring:
   config:
     activate:
       on-profile: local
+    import:
+      - classpath:secrets_be/aws-s3.yml
+      - classpath:secrets_be/open-ai.yml
   datasource: # DB 커넥션 설정
     url: jdbc:postgresql://localhost:5432/wordsketch?serverTimezone=UTC&characterEncoding=UTF-8
     username: pantsadmin
@@ -21,6 +24,11 @@ spring:
       # validate : 현재 테이블 정보가 entity에 정의된 내용과 동일한지 체크 후, 다를 경우 경고를 출력하며 애플리케이션을 실행하지 않음
       # none : 자동생성을 사용하지 않음
     show-sql: true
+  sql:
+    init:
+      mode: always
+  main:
+    web-application-type: none
 logging: # 서버 로그 설정
   level:
     org:

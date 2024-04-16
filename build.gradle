@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.goorm'
-version = '0.1.0'
+version = '0.2.0'
 
 java {
     sourceCompatibility = '17'
@@ -33,7 +33,6 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
 
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.638'
