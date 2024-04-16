@@ -5,7 +5,6 @@ import com.goorm.wordsketch.entity.VocabularyContent;
 import com.goorm.wordsketch.entity.VocabularyType;
 import com.goorm.wordsketch.repository.VocabularyContentRepository;
 import com.goorm.wordsketch.repository.VocabularyRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,26 +35,14 @@ public class BatchIntegrationTestJobConfigurationTest {
   @Autowired
   private VocabularyContentRepository vocabularyContentRepository;
 
-  /**
-   * 각 테스트가 끝나고, Batch 대상 Entity 초기화
-   *
-   * @throws Exception
-   */
-  @AfterEach
-  public void tearDown() throws Exception {
-
-    vocabularyContentRepository.deleteAllInBatch();
-    vocabularyRepository.deleteAllInBatch();
-  }
-
   @Nested
   @DisplayName("Given: DB에 컨텐츠 추가 대상 어휘가 존재할 때")
   class Given_DB에_컨텐츠_추가_대상_어휘가_존재할_때 {
 
     Vocabulary vocabulary = Vocabulary.builder()
-        .substance("이듬해")
-        .description("어떤 일이 있은 그 다음해. 익년(翌年).")
-        .type(VocabularyType.단어)
+        .substance("벼는 익을수록 고개를 숙인다")
+        .description("익을수록 고개를 숙이는 벼 이삭에 빗대어, 많이 배우고 깨달은 사람일수록 교만하지 않고 겸손함을 표현하는 속담")
+        .type(VocabularyType.속담)
         .build();
 
     Vocabulary savedVocabulary = vocabularyRepository.save(vocabulary);
@@ -72,8 +59,11 @@ public class BatchIntegrationTestJobConfigurationTest {
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
         assertEquals(BatchStatus.COMPLETED, jobExecution.getStatus());
 
-        // Vocabulary Content의 개수가 증가했는지 확인
-        int vocabularyContentCount = vocabularyContentRepository.findAll().size();
+        // Vocabulary Content의 개수가 1만큼 증가했는지 확인
+        int vocabularyContentCount = vocabularyContentRepository.findAllByVocabulary(savedVocabulary)
+            .orElseThrow()
+            .size();
+
         assertSame(1, vocabularyContentCount);
       }
     }
@@ -83,19 +73,28 @@ public class BatchIntegrationTestJobConfigurationTest {
   @DisplayName("Given: DB에 컨텐츠 추가 대상 어휘가 없을 때")
   class Given_DB에_컨텐츠_추가_대상_어휘가_없을_때 {
 
-    Vocabulary vocabulary = Vocabulary.builder()
+    // 속담이 아닌 어휘 등록
+    Vocabulary notProverbVocabulary = Vocabulary.builder()
         .substance("이듬해")
         .description("어떤 일이 있은 그 다음해. 익년(翌年).")
         .type(VocabularyType.단어)
         .build();
 
+    // 속담이지만 이미 컨텐츠가 생성된 어휘 등록
+    Vocabulary vocabularyWithContent = Vocabulary.builder()
+        .substance("벼는 익을수록 고개를 숙인다")
+        .description("익을수록 고개를 숙이는 벼 이삭에 빗대어, 많이 배우고 깨달은 사람일수록 교만하지 않고 겸손함을 표현하는 속담")
+        .type(VocabularyType.속담)
+        .build();
+
     VocabularyContent vocabularyContent = VocabularyContent.builder()
-        .vocabulary(vocabulary)
+        .vocabulary(vocabularyWithContent)
         .contentURL("www.wordsketch.site")
         .problemDescription("테스트 지문입니다.")
         .build();
 
-    Vocabulary savedVocabulary = vocabularyRepository.save(vocabulary);
+    Vocabulary savedNotProverbVocabulary = vocabularyRepository.save(notProverbVocabulary);
+    Vocabulary savedVocabularyWithContent = vocabularyRepository.save(vocabularyWithContent);
     VocabularyContent savedVocabularyContent = vocabularyContentRepository.save(vocabularyContent);
 
     @Nested
@@ -110,9 +109,21 @@ public class BatchIntegrationTestJobConfigurationTest {
         JobExecution jobExecution = jobLauncherTestUtils.launchJob();
         assertEquals(BatchStatus.COMPLETED, jobExecution.getStatus());
 
-        // Vocabulary Content의 개수가 그대로인지 확인
-        int vocabularyContentCount = vocabularyContentRepository.findAll().size();
-        assertSame(1, vocabularyContentCount);
+        // notProverbVocabulary의 contents 개수가 그대로인지 확인
+        int updatedNotProverbVocabularyContentsCount = vocabularyContentRepository
+            .findAllByVocabulary(savedNotProverbVocabulary)
+            .orElseThrow()
+            .size();
+
+        assertSame(0, updatedNotProverbVocabularyContentsCount);
+
+        // vocabularyWithContent의 contents 개수가 그대로인지 확인
+        int updatedVocabularyWithContentsCount = vocabularyContentRepository
+            .findAllByVocabulary(savedVocabularyWithContent)
+            .orElseThrow()
+            .size();
+
+        assertSame(1, updatedVocabularyWithContentsCount);
       }
     }
   }
