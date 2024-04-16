@@ -27,6 +27,8 @@ spring:
   sql:
     init:
       mode: always
+  main:
+    web-application-type: none
 logging: # 서버 로그 설정
   level:
     org:
