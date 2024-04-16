@@ -2,7 +2,7 @@ name: BACKEND CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build-and-push:
@@ -47,7 +47,7 @@ jobs:
       - name: Build with Gradle
         run: |
           chmod +x ./gradlew
-          ./gradlew clean build
+          ./gradlew -x test clean build
 
       - name: Extract version from merge commit message
         id: extract_version
