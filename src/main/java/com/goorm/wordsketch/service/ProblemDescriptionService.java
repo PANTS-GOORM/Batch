@@ -21,7 +21,7 @@ public class ProblemDescriptionService {
     // 빈칸으로 파싱한 문자열 배열 중, 랜덤한 순서의 문자열을 빈칸 처리
     int arrSize = strArr.length;
     int randomIdx = new Random().nextInt(arrSize);
-    strArr[randomIdx].replaceAll(".", "_");
+    strArr[randomIdx] = strArr[randomIdx].replaceAll(".", "_");
 
     // 변환한 속담 문제 지문을 반환
     return String.join(" ", strArr);
