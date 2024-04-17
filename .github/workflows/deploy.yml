@@ -89,5 +89,5 @@ jobs:
           git config user.name "chickennight"
           git config user.email "john0513@naver.com"
           git add batch/batch-server.yaml
-          git commit -m "Update back image tag to ${{ env.version }}"
+          git commit -m "Update batch image tag to ${{ env.version }}"
           git push
