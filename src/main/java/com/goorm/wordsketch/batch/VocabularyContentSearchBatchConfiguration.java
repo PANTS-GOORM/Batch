@@ -23,6 +23,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
+import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -73,21 +74,13 @@ public class VocabularyContentSearchBatchConfiguration {
 
     String queryString = "SELECT v FROM Vocabulary v WHERE v.type = :type";
 
-    // pageNum을 0으로 고정하여, contents가 update되므로써 지나치는 vocabulary가 없도록 설정
-    JpaPagingItemReader<Vocabulary> reader = new JpaPagingItemReader<Vocabulary>() {
-      @Override
-      public int getPage() {
-        return 0;
-      }
-    };
-
-    reader.setName("vocabularyContentSearchBatchReader");
-    reader.setEntityManagerFactory(entityManagerFactory);
-    reader.setPageSize(10);
-    reader.setParameterValues(parameterValues);
-    reader.setQueryString(queryString);
-
-    return reader;
+    return new JpaPagingItemReaderBuilder<Vocabulary>()
+        .name("vocabularyContentSearchBatchReader")
+        .entityManagerFactory(entityManagerFactory)
+        .pageSize(10)
+        .parameterValues(parameterValues)
+        .queryString(queryString)
+        .build();
   }
 
   @Bean
