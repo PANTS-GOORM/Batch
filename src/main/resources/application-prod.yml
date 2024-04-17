@@ -7,6 +7,10 @@ spring:
   jpa:
     database: postgresql
     show-sql: true
+  # Spring Batch에 필요한 Job 관련 relation 자동 생성하기 위한 속성
+  sql:
+    init:
+      mode: always
 logging:
   level:
     org:
